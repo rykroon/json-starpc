@@ -44,17 +44,17 @@ class JsonRpc:
 
     @request_response
     async def http_flow(self, http_request):
-        if http_request.method not in ['GET', 'POST']:
-            ...
+        if http_request.method != 'POST':
+            return Response(status_code=405)
+
+        if http_request.headers.get('content-type') != 'application/json':
+            return Response(status_code=415)
 
         raw_data = await http_request.body()
         json_data, error = self.parse_json(raw_data)
         if error is not None:
             response = error_to_response(error)
             return JSONResponse(response, status_code=400)
-
-        if not isinstance(json_data, list | dict):
-            raise TypeError
 
         if isinstance(json_data, dict):
             raw_requests = [json_data]
