@@ -1,6 +1,5 @@
 import json
 import logging
-from requests import request
 
 from starlette.applications import Starlette
 from starlette.background import BackgroundTask

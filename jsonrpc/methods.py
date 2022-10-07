@@ -3,7 +3,6 @@ from typing import Callable
 
 
 from jsonrpc.exceptions import InvalidParams, MethodNotFound
-from jsonrpc.utils import exception_to_error, error_to_response
 
 
 class Method:
