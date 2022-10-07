@@ -21,6 +21,7 @@ class JsonRpc(Starlette):
         self,
         methods=None,
         path='/',
+        jsonlib=None,
         debug: bool = False,
         middleware=None,
         exception_handlers=None,
@@ -45,13 +46,14 @@ class JsonRpc(Starlette):
         )
 
         self.method_router = MethodRouter(methods)
+        self.jsonlib = json if jsonlib is None else jsonlib
 
     def parse_json(self, data: bytes):
         try:
-            return json.loads(data)
+            return self.jsonlib.loads(data)
 
         except json.JSONDecodeError as e:
-            raise ParseError
+            raise ParseError(str(e))
 
 
 async def http_flow(http_request):
