@@ -2,7 +2,7 @@ import inspect
 from typing import Callable
 
 
-from jsonrpc.errors import invalid_params, method_not_found
+from jsonrpc.exceptions import InvalidParams, MethodNotFound
 from jsonrpc.utils import exception_to_error, error_to_response
 
 
@@ -12,7 +12,7 @@ class Method:
         self.signature = inspect.signature(self.func)
         self.name = name if name is not None else func.__name__
 
-    async def __call__(self, request) -> tuple[dict | None, dict | None]:
+    async def __call__(self, request: dict):
         try:
             if 'params' not in request:
                 ba = self.signature.bind()
@@ -24,15 +24,9 @@ class Method:
                 ba = self.signature.bind(**request['params'])
 
         except TypeError as e:
-            return None, invalid_params(str(e))
+            raise InvalidParams(str(e))
 
-        result = await self.func(*ba.args, **ba.kwargs)
-
-        return {
-            'jsonrpc': "2.0",
-            'id': request['id'],
-            'result': result
-        }, None
+        return await self.func(*ba.args, **ba.kwargs)
 
 
 class MethodRouter:
@@ -44,14 +38,5 @@ class MethodRouter:
         for method in self.methods:
             if method.name != request['method']:
                 continue
-
-            try:
-                return await method(request)
-            
-            except Exception as e:
-                error = exception_to_error(e)
-                id = request['id'] if 'id' in request else None
-                response = error_to_response(error, id=id)
-                return response
-
-        return None, method_not_found()
+            return await method(request)
+        raise MethodNotFound

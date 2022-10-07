@@ -1,34 +1,32 @@
-from jsonrpc.errors import invalid_request
+from jsonrpc.exceptions import InvalidRequest
 
 
-def validate_request(request: dict) -> tuple[dict | None, dict | None]:
+def validate_request(request: dict):
     if not isinstance(request, dict):
-        return None, invalid_request('Request must be an object.')
+        raise InvalidRequest('Request must be an object.')
 
     if 'jsonrpc' not in request:
-        return None, invalid_request("Missing member 'jsonrpc'.")
+        raise InvalidRequest("Missing member 'jsonrpc'.")
 
     if not isinstance(request['jsonrpc'], str):
-        return None, invalid_request("Member 'jsonrpc' must be a 'string'.")
+        raise InvalidRequest("Member 'jsonrpc' must be a 'string'.")
 
     if request['jsonrpc'] != "2.0":
-        return None, invalid_request("Member 'jsonrpc' must be '2.0'.")
+        raise InvalidRequest("Member 'jsonrpc' must be '2.0'.")
 
     if 'method' not in request:
-        return None, invalid_request("Missing member 'method'.")
+        raise InvalidRequest("Missing member 'method'.")
 
     if not isinstance(request['method'], str):
-        return None, invalid_request("Member 'method' must be a 'string'.")
+        raise InvalidRequest("Member 'method' must be a 'string'.")
 
     if 'params' in request:
         if not isinstance(request['params'], list | dict):
-            return None, invalid_request("Member 'params' must be an 'array' or an 'object'.")
+            raise InvalidRequest("Member 'params' must be an 'array' or an 'object'.")
 
     if 'id' in request:
         if not isinstance(request['id'], str | int):
-            return None, invalid_request("Member 'id' must be a 'string' or 'number'.")
-
-    return request, None
+            raise InvalidRequest("Member 'id' must be a 'string' or 'number'.")
 
 
 def validate_error(error: dict):
