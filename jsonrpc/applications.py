@@ -1,7 +1,7 @@
 import json
 import logging
 
-from starlette.background import BackgroundTasks
+from starlette.background import BackgroundTask
 from starlette.responses import JSONResponse, Response
 from starlette.routing import request_response, websocket_session
 
@@ -56,42 +56,21 @@ class JsonRpc:
             response = error_to_response(error)
             return JSONResponse(response, status_code=400)
 
-        if isinstance(json_data, dict):
-            raw_requests = [json_data]
+        request, error = validate_request(json_data)
+        if error is not None:
+            response = error_to_response(error)
+            return JSONResponse(response, status_code=400)
 
-        elif isinstance(json_data, list):
-            raw_requests = [obj for obj in json_data]
+        # notification
+        if 'id' not in request:
+            task = BackgroundTask(self.method_router.dispatch, request)
+            return Response(status_code=204, background=task) 
 
-        requests = []
-        responses = []
-        for request in raw_requests:
-            request, error = validate_request(request)
+        response, error = await self.method_router.dispatch(request)
+        if error is not None:
+            response = error_to_response(error, id=request['id'])
 
-            if error is not None:
-                response = error_to_response(error)
-                responses.append(response)
-                continue
-
-            requests.append(request)
-
-        tasks = BackgroundTasks()
-        for request in requests:
-            # notification
-            if 'id' not in request:
-                tasks.add_task(self.method_router.dispatch, request)
-                continue
-
-            response, error = await self.method_router.dispatch(request)
-
-            if error is not None:
-                response = error_to_response(error, id=request['id'])
-
-            responses.append(response)
-
-        if not responses:
-            return Response(status_code=204, background=tasks)
-
-        return JSONResponse(responses, background=tasks)
+        return JSONResponse(response)
 
     @websocket_session
     async def websocket_flow(self, websocket):
