@@ -2,7 +2,7 @@ import inspect
 from typing import Callable
 
 from starlette.routing import get_name
-from jsonrpc.exceptions import InvalidParams, MethodNotFound
+from jsonrpc.exceptions import InvalidParams
 
 
 class Function:
