@@ -4,11 +4,21 @@ from starlette.background import BackgroundTask
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import Response, JSONResponse
 
-from jsonrpc.exceptions import ParseError, MethodNotFound, InvalidParams
+from jsonrpc.exceptions import ParseError, MethodNotFound
 from jsonrpc.validation import validate_request
 
 
-class JsonRpcHttpEndpoint(HTTPEndpoint):
+class JsonRpcEndpointMixin:
+
+    def parse_json(self, raw_data: bytes):
+        try:
+            return json.loads(raw_data)
+
+        except json.JSONDecodeError as e:
+            raise ParseError(str(e))
+
+
+class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
 
     async def post(self, http_request):
         if http_request.headers.get('content-type') != 'application/json':
@@ -44,9 +54,8 @@ class JsonRpcHttpEndpoint(HTTPEndpoint):
 
         return JSONResponse(response)
 
-    def parse_json(self, raw_data: bytes):
-        try:
-            return json.loads(raw_data)
 
-        except json.JSONDecodeError as e:
-            raise ParseError(str(e))
+
+
+class JsonRpcWebsocketEndpoint(WebSocketEndpoint):
+    ...
