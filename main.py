@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 
 from jsonrpc.exceptions import JsonRpcException
 from jsonrpc.functions import Function
-from jsonrpc.routing import JsonRpcRoute
+from jsonrpc.routing import JsonRpcRoute, JsonRpcWebsocketRoute
 
 
 logger = logging.getLogger('uvicorn.error')
@@ -14,7 +14,6 @@ logger.setLevel(logging.INFO)
 
 
 async def add(x: int, y: int) -> int:
-    await asyncio.sleep(1)
     logger.info("add")
     return x + y
 
@@ -24,7 +23,8 @@ functions = [
 ]
 
 routes = [
-    JsonRpcRoute('/', functions=functions)
+    JsonRpcRoute('/', functions=functions),
+    JsonRpcWebsocketRoute('/ws', functions=functions)
 ]
 
 
