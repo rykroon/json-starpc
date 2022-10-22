@@ -44,9 +44,9 @@ class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
         # notification
         if 'id' not in request:
             task = BackgroundTask(function, request.get('params'))
-            return Response(status_code=202, background=task) 
+            return Response(status_code=202, background=task)
 
-        result = await request.get('params'))
+        result = await function(request.get('params'))
 
         return SuccessResponse(result, id=request['id'])
 
@@ -54,7 +54,7 @@ class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
 class JsonRpcWebsocketEndpoint(WebSocketEndpoint, JsonRpcEndpointMixin):
 
     encoding = 'text'
-    
+
     async def on_receive(self, websocket, data):
         request = self.parse_json(data)
 

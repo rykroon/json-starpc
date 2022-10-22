@@ -22,7 +22,9 @@ def validate_request(request: dict):
 
     if 'params' in request:
         if not isinstance(request['params'], list | dict):
-            raise InvalidRequest("Member 'params' must be an 'array' or an 'object'.")
+            raise InvalidRequest(
+                "Member 'params' must be an 'array' or an 'object'."
+            )
 
     if 'id' in request:
         if not isinstance(request['id'], str | int):
@@ -53,7 +55,7 @@ def validate_response(response: dict):
     assert isinstance(response['jsonrpc'], str)
     assert response['jsonrpc'] == '2.0'
 
-    assert 'result' in response ^ 'error' in response
+    assert ('result' in response) ^ ('error' in response)
 
     if 'error' in response:
         validate_error(response['error'])

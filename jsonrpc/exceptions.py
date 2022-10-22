@@ -1,10 +1,9 @@
 
 
-
 class JsonRpcException(Exception):
     code: int = 0
     message: str = ""
-    
+
     def __init__(self, message: str = None, /, **data):
         if message is not None:
             self.message = message
@@ -34,4 +33,3 @@ class InvalidParams(JsonRpcException):
 class InternalError(JsonRpcException):
     code = -32603
     message = "Internal error."
-
