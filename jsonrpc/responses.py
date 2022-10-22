@@ -1,9 +1,17 @@
+from typing import Any, Optional
 from starlette.responses import JSONResponse
 
 
 class SuccessResponse(JSONResponse):
 
-    def __init__(self, result, *, jsonrpc="2.0", id=None, **kwargs):
+    def __init__(
+        self,
+        result: Any,
+        *,
+        jsonrpc: str = "2.0",
+        id: Optional[str | int] = None,
+        **kwargs
+    ):
         super().__init__({
             'jsonrpc': jsonrpc,
             'result': result,
@@ -12,7 +20,14 @@ class SuccessResponse(JSONResponse):
 
 
 class ErrorResponse(JSONResponse):
-    def __init__(self, error: dict, *, jsonrpc="2.0", id=None, **kwargs):
+    def __init__(
+        self,
+        error: dict,
+        *,
+        jsonrpc: str = "2.0",
+        id: Optional[str | int] = None,
+        **kwargs
+    ):
         super().__init__({
             'jsonrpc': jsonrpc,
             'error': error,

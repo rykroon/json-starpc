@@ -1,5 +1,5 @@
 import inspect
-from typing import Callable
+from typing import Callable, Optional
 
 from starlette.routing import get_name
 from jsonrpc.exceptions import InvalidParams
@@ -11,7 +11,7 @@ class Function:
         self.signature = inspect.signature(self.func)
         self.name = get_name(func) if name is None else name
 
-    async def __call__(self, params=None, /):
+    async def __call__(self, params: Optional[dict | list] = None, /):
         ba = self._get_bound_arguments(params)
         return await self.func(*ba.args, **ba.kwargs)
 
