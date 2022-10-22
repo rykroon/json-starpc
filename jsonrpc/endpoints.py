@@ -41,14 +41,12 @@ class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
 
         function = self.get_function(http_request, request['method'])
 
-        ba = function.get_bound_arguments(request.get('params'))
-
         # notification
         if 'id' not in request:
-            task = BackgroundTask(function, *ba.args, **ba.kwargs)
+            task = BackgroundTask(function, request.get('params'))
             return Response(status_code=202, background=task) 
 
-        result = await function(*ba.args, **ba.kwargs)
+        result = await request.get('params'))
 
         return SuccessResponse(result, id=request['id'])
 
@@ -63,9 +61,8 @@ class JsonRpcWebsocketEndpoint(WebSocketEndpoint, JsonRpcEndpointMixin):
         validate_request(request)
 
         function = self.get_function(websocket, request['method'])
-        ba = function.get_bound_arguments(request.get('params'))
 
-        result = await function(*ba.args, **ba.kwargs)
+        result = await function(request.get('params'))
 
         if 'id' not in request:
             return

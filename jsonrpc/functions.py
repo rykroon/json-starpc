@@ -11,10 +11,11 @@ class Function:
         self.signature = inspect.signature(self.func)
         self.name = get_name(func) if name is None else name
 
-    async def __call__(self, *args, **kwargs):
-        return await self.func(*args, **kwargs)
+    async def __call__(self, params=None, /):
+        ba = self._get_bound_arguments(params)
+        return await self.func(*ba.args, **ba.kwargs)
 
-    def get_bound_arguments(self, params):
+    def _get_bound_arguments(self, params):
         try:
             if params is None:
                 return self.signature.bind()
