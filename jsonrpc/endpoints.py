@@ -7,7 +7,6 @@ from starlette.responses import Response
 from starlette.requests import HTTPConnection, Request
 from starlette.websockets import WebSocket
 
-
 from jsonrpc.exceptions import ParseError, MethodNotFound
 from jsonrpc.functions import Function
 from jsonrpc.responses import SuccessResponse
