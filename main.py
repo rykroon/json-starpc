@@ -2,10 +2,10 @@ import logging
 
 from starlette.applications import Starlette
 
-from jsonrpc.exceptions import JsonRpcException
-from jsonrpc.functions import Function
-from jsonrpc.responses import ErrorResponse
-from jsonrpc.routing import JsonRpcRoute, JsonRpcWebsocketRoute
+from jsonstarpc.exceptions import JsonRpcException
+from jsonstarpc.functions import Function
+from jsonstarpc.responses import ErrorResponse
+from jsonstarpc.routing import JsonRpcRoute, JsonRpcWebsocketRoute
 
 
 logger = logging.getLogger('uvicorn.error')

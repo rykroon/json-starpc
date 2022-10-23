@@ -4,8 +4,8 @@ A JSON RPC Framework built using Starlette.
 
 ```
 from starlette.application import Startlette
-from jsonrpc.functions import Function
-from jsonrpc.routing import JsonRpcRoute
+from jsonstarpc.functions import Function
+from jsonstarpc.routing import JsonRpcRoute
 
 
 async def add(x: int, y: int) -> int:

@@ -1,5 +1,5 @@
 import typing
-from jsonrpc.exceptions import InvalidRequest
+from jsonstarpc.exceptions import InvalidRequest
 
 
 def validate_request(request: dict[str, typing.Any]) -> None:
