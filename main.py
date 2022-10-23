@@ -1,11 +1,10 @@
-import asyncio
 import logging
 
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse
 
 from jsonrpc.exceptions import JsonRpcException
 from jsonrpc.functions import Function
+from jsonrpc.responses import ErrorResponse
 from jsonrpc.routing import JsonRpcRoute, JsonRpcWebsocketRoute
 
 
@@ -29,22 +28,16 @@ routes = [
 
 
 async def jsonrpc_error(request, exc):
-    return JSONResponse({
-        'jsonrpc': "2.0",
-        'error': {
-            'code': exc.code,
-            'message': exc.message,
-        }
-    })
+    return ErrorResponse(
+        error_code=exc.code,
+        error_message=exc.message
+    )
 
 async def exception_handler(request, exc):
-    return JSONResponse({
-        'jsonrpc': "2.0",
-        'error': {
-            'code': 0,
-            'message': str(exc),
-        }
-    })
+    return ErrorResponse(
+        error_code=0,
+        error_message=str(exc)
+    )
 
 
 exception_handlers = {

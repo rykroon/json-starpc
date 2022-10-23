@@ -15,7 +15,7 @@ from jsonrpc.validation import validate_request
 
 class JsonRpcEndpointMixin:
 
-    def parse_json(self, raw_data: bytes):
+    def parse_json(self, raw_data: bytes) -> typing.Any:
         try:
             return json.loads(raw_data)
 
