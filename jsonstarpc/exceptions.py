@@ -2,8 +2,8 @@ import typing
 
 
 class JsonRpcException(Exception):
-    code: int = 0
-    message: str = ""
+    code: int
+    message: str
 
     def __init__(self, message: str | None = None, /, **data: typing.Any):
         if message is not None:

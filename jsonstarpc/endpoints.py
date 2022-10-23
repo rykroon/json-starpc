@@ -7,15 +7,15 @@ from starlette.responses import Response
 from starlette.requests import HTTPConnection, Request
 from starlette.websockets import WebSocket
 
-from jsonrpc.exceptions import ParseError, MethodNotFound
-from jsonrpc.functions import Function
-from jsonrpc.responses import SuccessResponse
-from jsonrpc.validation import validate_request
+from jsonstarpc.exceptions import ParseError, MethodNotFound
+from jsonstarpc.functions import Function
+from jsonstarpc.responses import SuccessResponse
+from jsonstarpc.validation import validate_request
 
 
 class JsonRpcEndpointMixin:
 
-    def parse_json(self, raw_data: bytes) -> typing.Any:
+    def parse_json(self, raw_data: str | bytes) -> typing.Any:
         try:
             return json.loads(raw_data)
 
