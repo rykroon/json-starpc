@@ -1,10 +1,15 @@
 import json
+import typing
 
 from starlette.background import BackgroundTask
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import Response
+from starlette.requests import HTTPConnection, Request
+from starlette.websockets import WebSocket
+
 
 from jsonrpc.exceptions import ParseError, MethodNotFound
+from jsonrpc.functions import Function
 from jsonrpc.responses import SuccessResponse
 from jsonrpc.validation import validate_request
 
@@ -18,8 +23,13 @@ class JsonRpcEndpointMixin:
         except json.JSONDecodeError as e:
             raise ParseError(str(e))
 
-    def get_function(self, connection, method):
-        functions = connection.scope['functions']
+    def get_function(
+        self,
+        connection: HTTPConnection,
+        method: str
+    ) -> Function:
+
+        functions: list[Function] = connection.scope['functions']
 
         for function in functions:
             if function.name == method:
@@ -30,7 +40,7 @@ class JsonRpcEndpointMixin:
 
 class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
 
-    async def post(self, http_request):
+    async def post(self, http_request: Request) -> typing.Any:
         if http_request.headers.get('content-type') != 'application/json':
             return Response(status_code=415)
 
@@ -55,7 +65,7 @@ class JsonRpcWebsocketEndpoint(WebSocketEndpoint, JsonRpcEndpointMixin):
 
     encoding = 'text'
 
-    async def on_receive(self, websocket, data):
+    async def on_receive(self, websocket: WebSocket, data: typing.Any) -> None:
         request = self.parse_json(data)
 
         validate_request(request)

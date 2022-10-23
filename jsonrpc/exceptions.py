@@ -4,7 +4,7 @@ class JsonRpcException(Exception):
     code: int = 0
     message: str = ""
 
-    def __init__(self, message: str = None, /, **data):
+    def __init__(self, message: str | None = None, /, **data):
         if message is not None:
             self.message = message
         self.data = data if data else None

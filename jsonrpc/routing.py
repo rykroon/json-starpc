@@ -1,6 +1,7 @@
 from typing import Optional, List
 
 from starlette.routing import Route, WebSocketRoute
+from starlette.types import Scope, Send, Receive
 from jsonrpc.endpoints import JsonRpcHttpEndpoint, JsonRpcWebsocketEndpoint
 from jsonrpc.functions import Function
 
@@ -25,7 +26,7 @@ class JsonRpcRoute(Route):
 
         self.functions = [] if functions is None else list(functions)
 
-    async def handle(self, scope, receive, send):
+    async def handle(self, scope: Scope, receive: Receive, send: Send) -> None:
         scope['functions'] = self.functions
         await super().handle(scope, receive, send)
 
@@ -47,6 +48,6 @@ class JsonRpcWebsocketRoute(WebSocketRoute):
 
         self.functions = [] if functions is None else list(functions)
 
-    async def handle(self, scope, receive, send):
+    async def handle(self, scope: Scope, receive: Receive, send: Send) -> None:
         scope['functions'] = self.functions
         await super().handle(scope, receive, send)

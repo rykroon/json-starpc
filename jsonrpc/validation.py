@@ -1,7 +1,8 @@
+import typing
 from jsonrpc.exceptions import InvalidRequest
 
 
-def validate_request(request: dict):
+def validate_request(request: dict[str, typing.Any]) -> None:
     if not isinstance(request, dict):
         raise InvalidRequest('Request must be an object.')
 
@@ -31,7 +32,7 @@ def validate_request(request: dict):
             raise InvalidRequest("Member 'id' must be a 'string' or 'number'.")
 
 
-def validate_error(error: dict):
+def validate_error(error: dict[str, typing.Any]) -> None:
     assert isinstance(error, dict)
 
     assert 'code' in error
@@ -48,7 +49,7 @@ def validate_error(error: dict):
         assert key in allowed_fields
 
 
-def validate_response(response: dict):
+def validate_response(response: dict[str, typing.Any]) -> None:
     assert isinstance(response, dict)
 
     assert 'jsonrpc' in response

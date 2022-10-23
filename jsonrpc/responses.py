@@ -1,4 +1,4 @@
-from typing import Any, Optional
+import typing
 from starlette.responses import JSONResponse
 
 
@@ -6,10 +6,10 @@ class SuccessResponse(JSONResponse):
 
     def __init__(
         self,
-        result: Any,
+        result: typing.Any,
         *,
         jsonrpc: str = "2.0",
-        id: Optional[str | int] = None,
+        id: str | int | None = None,
         **kwargs
     ):
         super().__init__({
@@ -22,10 +22,10 @@ class SuccessResponse(JSONResponse):
 class ErrorResponse(JSONResponse):
     def __init__(
         self,
-        error: dict,
+        error: dict[str, typing.Any],
         *,
         jsonrpc: str = "2.0",
-        id: Optional[str | int] = None,
+        id: str | int | None = None,
         **kwargs
     ):
         super().__init__({
