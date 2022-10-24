@@ -41,23 +41,22 @@ class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
 
     async def post(self, http_request: Request) -> typing.Any:
         if http_request.headers.get('content-type') != 'application/json':
-            return Response(status_code=415)
+            raise ParseError("Invalid ContentType.")
+            # return Response(status_code=415)
 
         raw_data = await http_request.body()
-        request = self.parse_json(raw_data)
-
-        validate_request(request)
-
-        function = self.get_function(http_request, request['method'])
+        json_data = self.parse_json(raw_data)
+        request = validate_request(json_data)
+        function = self.get_function(http_request, request.method)
 
         # notification
-        if 'id' not in request:
-            task = BackgroundTask(function, request.get('params'))
+        if request.id is None:
+            task = BackgroundTask(function, request.params)
             return Response(status_code=202, background=task)
 
-        result = await function(request.get('params'))
+        result = await function(request.params)
 
-        return SuccessResponse(result, id=request['id'])
+        return SuccessResponse(result, id=request.id)
 
 
 class JsonRpcWebsocketEndpoint(WebSocketEndpoint, JsonRpcEndpointMixin):
@@ -65,19 +64,16 @@ class JsonRpcWebsocketEndpoint(WebSocketEndpoint, JsonRpcEndpointMixin):
     encoding = 'text'
 
     async def on_receive(self, websocket: WebSocket, data: typing.Any) -> None:
-        request = self.parse_json(data)
+        json_data = self.parse_json(data)
+        request = validate_request(json_data)
+        function = self.get_function(websocket, request.method)
+        result = await function(request.params)
 
-        validate_request(request)
-
-        function = self.get_function(websocket, request['method'])
-
-        result = await function(request.get('params'))
-
-        if 'id' not in request:
+        if request.id is None:
             return
 
         await websocket.send_json({
             'jsonrpc': '2.0',
             'result': result,
-            'id': request['id']
+            'id': request.id
         })

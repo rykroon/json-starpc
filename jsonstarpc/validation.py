@@ -1,35 +1,43 @@
 import typing
 from jsonstarpc.exceptions import InvalidRequest
+from jsonstarpc.dataclasses import JsonRpcRequest
 
 
-def validate_request(request: dict[str, typing.Any]) -> None:
-    if not isinstance(request, dict):
+def validate_request(data: typing.Any) -> JsonRpcRequest:
+    if not isinstance(data, dict):
         raise InvalidRequest('Request must be an object.')
 
-    if 'jsonrpc' not in request:
+    if 'jsonrpc' not in data:
         raise InvalidRequest("Missing member 'jsonrpc'.")
 
-    if not isinstance(request['jsonrpc'], str):
+    if not isinstance(data['jsonrpc'], str):
         raise InvalidRequest("Member 'jsonrpc' must be a 'string'.")
 
-    if request['jsonrpc'] != "2.0":
+    if data['jsonrpc'] != "2.0":
         raise InvalidRequest("Member 'jsonrpc' must be '2.0'.")
 
-    if 'method' not in request:
+    if 'method' not in data:
         raise InvalidRequest("Missing member 'method'.")
 
-    if not isinstance(request['method'], str):
+    if not isinstance(data['method'], str):
         raise InvalidRequest("Member 'method' must be a 'string'.")
 
-    if 'params' in request:
-        if not isinstance(request['params'], list | dict):
+    if 'params' in data:
+        if not isinstance(data['params'], list | dict):
             raise InvalidRequest(
                 "Member 'params' must be an 'array' or an 'object'."
             )
 
-    if 'id' in request:
-        if not isinstance(request['id'], str | int):
+    if 'id' in data:
+        if not isinstance(data['id'], str | int):
             raise InvalidRequest("Member 'id' must be a 'string' or 'number'.")
+
+    return JsonRpcRequest(
+        jsonrpc=data['jsonrpc'],
+        method=data['method'],
+        params=data.get('params'),
+        id=data.get('id')
+    )
 
 
 def validate_error(error: dict[str, typing.Any]) -> None:
