@@ -4,6 +4,7 @@ import typing
 class JsonRpcException(Exception):
     code: int
     message: str
+    data: dict[str, typing.Any] | None
 
     def __init__(self, message: str | None = None, /, **data: typing.Any):
         if message is not None:
