@@ -1,27 +1,27 @@
 import inspect
-from typing import Any, Callable
+import typing as t
 
 from starlette.routing import get_name
 from jsonstarpc.exceptions import InvalidParams
 
 
 class Function:
-    def __init__(self, func: Callable[..., Any], *, name: str | None = None):
+    def __init__(self, func: t.Callable[..., t.Any], *, name: str | None = None):
         self.func = func
         self.signature = inspect.signature(self.func)
         self.name = get_name(func) if name is None else name
 
     async def __call__(
         self,
-        params: dict[str, Any] | list[Any] | None = None,
+        params: dict[str, t.Any] | list[t.Any] | None = None,
         /
-    ) -> Any:
+    ) -> t.Any:
         ba = self._get_bound_arguments(params)
         return await self.func(*ba.args, **ba.kwargs)
 
     def _get_bound_arguments(
         self,
-        params: dict[str, Any] | list[Any] | None
+        params: dict[str, t.Any] | list[t.Any] | None
     ) -> inspect.BoundArguments:
         try:
             if params is None:
