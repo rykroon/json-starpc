@@ -50,7 +50,7 @@ class ErrorResponse(JSONResponse):
             'error': {
                 'code': error_code,
                 'message': error_message,
-                'data': error_datap
+                'data': error_data
             },
             'id': id
         }
