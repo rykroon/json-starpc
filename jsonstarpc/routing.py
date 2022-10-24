@@ -2,8 +2,8 @@ from typing import Optional, List
 
 from starlette.routing import Route, WebSocketRoute
 from starlette.types import Scope, Send, Receive
-from jsonrpc.endpoints import JsonRpcHttpEndpoint, JsonRpcWebsocketEndpoint
-from jsonrpc.functions import Function
+from jsonstarpc.endpoints import JsonRpcHttpEndpoint, JsonRpcWebsocketEndpoint
+from jsonstarpc.functions import Function
 
 
 class JsonRpcRoute(Route):
