@@ -1,6 +1,33 @@
+import json
 import typing
-from jsonstarpc.exceptions import InvalidRequest
+
+from starlette.requests import HTTPConnection
+
 from jsonstarpc.dataclasses import JsonRpcRequest
+from jsonstarpc.exceptions import InvalidRequest, ParseError, MethodNotFound
+from jsonstarpc.functions import Function
+
+
+def parse_json(raw_data: str | bytes) -> typing.Any:
+    try:
+        return json.loads(raw_data)
+
+    except json.JSONDecodeError as e:
+        raise ParseError(str(e))
+
+
+def get_function(
+    connection: HTTPConnection,
+    method: str
+) -> Function:
+
+    functions: list[Function] = connection.scope['functions']
+
+    for function in functions:
+        if function.name == method:
+            return function
+
+    raise MethodNotFound
 
 
 def validate_request(data: typing.Any) -> JsonRpcRequest:
@@ -38,40 +65,3 @@ def validate_request(data: typing.Any) -> JsonRpcRequest:
         params=data.get('params'),
         id=data.get('id')
     )
-
-
-def validate_error(error: dict[str, typing.Any]) -> None:
-    assert isinstance(error, dict)
-
-    assert 'code' in error
-    assert isinstance(error['code'], int)
-
-    assert 'message' in error
-    assert isinstance(error['message'], str)
-
-    if 'data' in error:
-        assert isinstance(error['data'], dict)
-
-    allowed_fields = ('code', 'message', 'data')
-    for key in error:
-        assert key in allowed_fields
-
-
-def validate_response(response: dict[str, typing.Any]) -> None:
-    assert isinstance(response, dict)
-
-    assert 'jsonrpc' in response
-    assert isinstance(response['jsonrpc'], str)
-    assert response['jsonrpc'] == '2.0'
-
-    assert ('result' in response) ^ ('error' in response)
-
-    if 'error' in response:
-        validate_error(response['error'])
-
-    assert 'id' in response
-    assert isinstance(response['id'], str | int | None)
-
-    allowed_fields = ('jsonrpc', 'result', 'error', 'id')
-    for key in response:
-        assert key in allowed_fields

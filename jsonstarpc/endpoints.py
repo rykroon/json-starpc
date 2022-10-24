@@ -1,43 +1,17 @@
-import json
 import typing
 
 from starlette.background import BackgroundTask
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import Response
-from starlette.requests import HTTPConnection, Request
+from starlette.requests import Request
 from starlette.websockets import WebSocket
 
-from jsonstarpc.exceptions import ParseError, MethodNotFound
-from jsonstarpc.functions import Function
+from jsonstarpc.exceptions import ParseError
 from jsonstarpc.responses import SuccessResponse
-from jsonstarpc.validation import validate_request
+from jsonstarpc.utils import parse_json, get_function, validate_request
 
 
-class JsonRpcEndpointMixin:
-
-    def parse_json(self, raw_data: str | bytes) -> typing.Any:
-        try:
-            return json.loads(raw_data)
-
-        except json.JSONDecodeError as e:
-            raise ParseError(str(e))
-
-    def get_function(
-        self,
-        connection: HTTPConnection,
-        method: str
-    ) -> Function:
-
-        functions: list[Function] = connection.scope['functions']
-
-        for function in functions:
-            if function.name == method:
-                return function
-
-        raise MethodNotFound
-
-
-class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
+class JsonRpcHttpEndpoint(HTTPEndpoint):
 
     async def post(self, http_request: Request) -> typing.Any:
         if http_request.headers.get('content-type') != 'application/json':
@@ -45,9 +19,9 @@ class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
             # return Response(status_code=415)
 
         raw_data = await http_request.body()
-        json_data = self.parse_json(raw_data)
+        json_data = parse_json(raw_data)
         request = validate_request(json_data)
-        function = self.get_function(http_request, request.method)
+        function = get_function(http_request, request.method)
 
         # notification
         if request.id is None:
@@ -59,14 +33,14 @@ class JsonRpcHttpEndpoint(HTTPEndpoint, JsonRpcEndpointMixin):
         return SuccessResponse(result, id=request.id)
 
 
-class JsonRpcWebsocketEndpoint(WebSocketEndpoint, JsonRpcEndpointMixin):
+class JsonRpcWebsocketEndpoint(WebSocketEndpoint):
 
     encoding = 'text'
 
     async def on_receive(self, websocket: WebSocket, data: typing.Any) -> None:
-        json_data = self.parse_json(data)
+        json_data = parse_json(data)
         request = validate_request(json_data)
-        function = self.get_function(websocket, request.method)
+        function = get_function(websocket, request.method)
         result = await function(request.params)
 
         if request.id is None:
