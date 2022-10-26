@@ -1,14 +1,14 @@
 import json
-import typing
+import typing as t
 
 from starlette.requests import HTTPConnection
 
-from jsonstarpc.dataclasses import JsonRpcRequest
+from jsonstarpc.types import JsonRpcRequest
 from jsonstarpc.exceptions import InvalidRequest, ParseError, MethodNotFound
 from jsonstarpc.functions import Function
 
 
-def parse_json(raw_data: str | bytes) -> typing.Any:
+def parse_json(raw_data: str | bytes) -> t.Any:
     try:
         return json.loads(raw_data)
 
@@ -21,7 +21,7 @@ def get_function(
     method: str
 ) -> Function:
 
-    functions: list[Function] = connection.scope['functions']
+    functions = connection.scope['functions']
 
     for function in functions:
         if function.name == method:
@@ -30,7 +30,7 @@ def get_function(
     raise MethodNotFound
 
 
-def validate_request(data: typing.Any) -> JsonRpcRequest:
+def validate_request(data: t.Any) -> JsonRpcRequest:
     if not isinstance(data, dict):
         raise InvalidRequest('Request must be an object.')
 
@@ -49,19 +49,21 @@ def validate_request(data: typing.Any) -> JsonRpcRequest:
     if not isinstance(data['method'], str):
         raise InvalidRequest("Member 'method' must be a 'string'.")
 
+    request: JsonRpcRequest = {
+        'jsonrpc': data['jsonrpc'],
+        'method': data['method']
+    }
+
     if 'params' in data:
         if not isinstance(data['params'], list | dict):
             raise InvalidRequest(
                 "Member 'params' must be an 'array' or an 'object'."
             )
+        request['params'] = data['params']
 
     if 'id' in data:
         if not isinstance(data['id'], str | int):
             raise InvalidRequest("Member 'id' must be a 'string' or 'number'.")
+        request['id'] = data['id']
 
-    return JsonRpcRequest(
-        jsonrpc=data['jsonrpc'],
-        method=data['method'],
-        params=data.get('params'),
-        id=data.get('id')
-    )
+    return request

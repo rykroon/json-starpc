@@ -1,5 +1,3 @@
-from typing import Optional, List
-
 from starlette.routing import Route, WebSocketRoute
 from starlette.types import Scope, Send, Receive
 from jsonstarpc.endpoints import JsonRpcHttpEndpoint, JsonRpcWebsocketEndpoint
@@ -12,8 +10,8 @@ class JsonRpcRoute(Route):
         self,
         path: str,
         *,
-        functions: Optional[List[Function]] = None,
-        name: Optional[str] = None,
+        functions: list[Function] | None = None,
+        name: str | None = None,
         include_in_schema: bool = True
     ):
         super().__init__(
@@ -37,8 +35,8 @@ class JsonRpcWebsocketRoute(WebSocketRoute):
         self,
         path: str,
         *,
-        functions: Optional[List[Function]] = None,
-        name: Optional[str] = None
+        functions: list[Function] | None = None,
+        name: str | None = None
     ):
         super().__init__(
             path,

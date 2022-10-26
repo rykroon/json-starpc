@@ -3,6 +3,8 @@ import typing
 from starlette.background import BackgroundTask
 from starlette.responses import JSONResponse
 
+from jsonstarpc.types import JsonRpcSuccessResponse, JsonRpcErrorResponse, JsonRpcError
+
 
 class SuccessResponse(JSONResponse):
 
@@ -16,9 +18,8 @@ class SuccessResponse(JSONResponse):
         headers: dict[str, str] | None = None,
         media_type: str | None = None,
         background: BackgroundTask | None = None
-
     ):
-        content = {
+        content: JsonRpcSuccessResponse = {
             'jsonrpc': jsonrpc,
             'result': result,
             'id': id
@@ -45,13 +46,17 @@ class ErrorResponse(JSONResponse):
         media_type: str | None = None,
         background: BackgroundTask | None = None
     ):
-        content = {
+        error: JsonRpcError = {
+            'code': error_code,
+            'message': error_message,
+        }
+
+        if error_data is not None:
+            error['data'] = error_data
+
+        content: JsonRpcErrorResponse = {
             'jsonrpc': jsonrpc,
-            'error': {
-                'code': error_code,
-                'message': error_message,
-                'data': error_data
-            },
+            'error': error,
             'id': id
         }
         super().__init__(
