@@ -35,3 +35,5 @@ class Function:
 
         except TypeError as e:
             raise InvalidParams(str(e))
+
+        raise TypeError
