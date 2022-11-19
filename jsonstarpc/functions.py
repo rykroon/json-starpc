@@ -17,7 +17,9 @@ class Function:
         /
     ) -> t.Any:
         ba = self._get_bound_arguments(params)
-        return await self.func(*ba.args, **ba.kwargs)
+        if inspect.iscoroutinefunction(self.func):
+            return await self.func(*ba.args, **ba.kwargs)
+        return self.func(*ba.args, **ba.kwargs)
 
     def _get_bound_arguments(
         self,
