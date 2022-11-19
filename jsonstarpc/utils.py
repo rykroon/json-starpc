@@ -1,8 +1,6 @@
 import json
 import typing as t
 
-from starlette.requests import HTTPConnection
-
 from jsonstarpc.types import JsonRpcRequest
 from jsonstarpc.exceptions import InvalidRequest, ParseError, MethodNotFound
 from jsonstarpc.functions import Function
@@ -16,17 +14,10 @@ def parse_json(raw_data: str | bytes) -> t.Any:
         raise ParseError(str(e))
 
 
-def get_function(
-    connection: HTTPConnection,
-    method: str
-) -> Function:
-
-    functions = connection.scope['functions']
-
+def get_function(method: str, functions: list[Function]) -> Function:
     for function in functions:
         if function.name == method:
             return function
-
     raise MethodNotFound
 
 

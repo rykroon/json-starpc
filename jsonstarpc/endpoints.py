@@ -20,7 +20,8 @@ class JsonRpcHttpEndpoint(HTTPEndpoint):
         raw_data = await http_request.body()
         json_data = parse_json(raw_data)
         request = validate_request(json_data)
-        function = get_function(http_request, request['method'])
+        functions = http_request.scope['functions']
+        function = get_function(request['method'], functions)
 
         # notification
         if 'id' not in request:
@@ -39,7 +40,8 @@ class JsonRpcWebsocketEndpoint(WebSocketEndpoint):
     async def on_receive(self, websocket: WebSocket, data: typing.Any) -> None:
         json_data = parse_json(data)
         request = validate_request(json_data)
-        function = get_function(websocket, request['method'])
+        functions = websocket.scope['functions']
+        function = get_function(request['method'], functions)
         result = await function(request.get('params'))
 
         if 'id' not in request:

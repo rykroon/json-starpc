@@ -1,7 +1,8 @@
 import pytest
 
-from jsonstarpc.exceptions import InvalidRequest, ParseError
-from jsonstarpc.utils import parse_json, validate_request
+from jsonstarpc.functions import Function
+from jsonstarpc.exceptions import InvalidRequest, ParseError, MethodNotFound
+from jsonstarpc.utils import parse_json, validate_request, get_function
 
 
 class TestParseJson:
@@ -23,6 +24,63 @@ class TestParseJson:
             }
             """
             parse_json(json_missing_double_quotes)
+
+
+class TestFindMethod:
+
+    def test_method_not_found_one(self):
+        def add(x, y):
+            return x + y
+
+        def sub(x, y):
+            return x - y
+
+        add_func = Function(add)
+        sub_func = Function(sub)
+        functions = [add_func, sub_func]
+
+        with pytest.raises(MethodNotFound):
+            get_function('addition', functions)
+
+    def test_method_not_found_two(self):
+        def add(x, y):
+            return x + y
+
+        def sub(x, y):
+            return x - y
+
+        add_func = Function(add, name='addition')
+        sub_func = Function(sub, name='subtraction')
+        functions = [add_func, sub_func]
+
+        with pytest.raises(MethodNotFound):
+            get_function('add', functions)
+
+    def test_method_found_one(self):
+        def add(x, y):
+            return x + y
+
+        def sub(x, y):
+            return x - y
+
+        add_func = Function(add)
+        sub_func = Function(sub)
+        functions = [add_func, sub_func]
+        func = get_function('add', functions)
+        assert func is add_func
+
+    def test_method_found_two(self):
+        def add(x, y):
+            return x + y
+
+        def sub(x, y):
+            return x - y
+
+        add_func = Function(add, name='addition')
+        sub_func = Function(sub, name='subtraction')
+        functions = [add_func, sub_func]
+        func = get_function('addition', functions)
+        assert func is add_func
 
 
 class TestInvalidJsonRpcRequest:
